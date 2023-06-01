@@ -1,0 +1,122 @@
+import pandas as pd
+import matplotlib.pyplot
+import pandas as pd
+import matplotlib as plt
+
+def gather_data(folder_path):
+    meteor_data_path = [folder_path + '/LC_2022Q1.csv',
+                        folder_path + '/LC_2022Q2.csv',
+                        folder_path + '/LC_2022Q3.csv',
+                        folder_path + '/LC_2022Q4.csv']
+    df1 = pd.read_csv(meteor_data_path[0])
+    df2 = pd.read_csv(meteor_data_path[1])
+    df3 = pd.read_csv(meteor_data_path[2])
+    df4 = pd.read_csv(meteor_data_path[3])
+    df = pd.concat([df1, df2, df3, df4], ignore_index=True)
+    return df
+
+def gather_data_noise(folder_path):
+    meteor_data_path = [folder_path + '/csv_results_40_255439_mp-01-naamsestraat-35-maxim.csv']
+                        #folder_path + '/LC_2022Q2.csv',
+                        #folder_path + '/LC_2022Q3.csv',
+                        #folder_path + '/LC_2022Q4.csv']
+    df1 = pd.read_csv(meteor_data_path[0])
+    #df = pd.concat([df1, df2, df3, df4], ignore_index=True)
+    return df1
+
+
+
+
+def create_season(df):
+    df['season'] = 'Winter'
+    df.loc[(df['Month'] > 2) & (df['Month'] < 6), 'season'] = 'Spring'
+    df.loc[(df['Month'] > 5) & (df['Month'] < 9), 'season'] = 'Summer'
+    df.loc[(df['Month'] > 8) & (df['Month'] < 12), 'season'] = 'Fall'
+    return df
+
+
+def initial_preprocessing_meteor(folder_path):
+    df = gather_data(folder_path)
+    df_drop = df.drop(['ID', 'LC_n', 'LC_TEMP_QCL0', 'LC_TEMP_QCL1', 'LC_TEMP_QCL2', 'LC_TEMP_QCL3'], axis=1)
+    df_drop2 = df_drop.drop(['LC_RAD', 'LC_RAININ', 'LC_DAILYRAIN', 'LC_WINDDIR', 'LC_WINDSPEED', 'Date'], axis=1)
+    df_drop_nan = df_drop2.dropna()
+
+
+
+    df_noise = gather_data_noise(folder_path)
+    df_noise_nan = df_noise.dropna()
+    #print(df_noise_nan)
+    df_noise_nan = df_noise.drop(['description', 'laf995_per_hour_unit', 'laf995_per_hour', 'laf005_per_hour_unit', 'laf01_per_hour_unit', 'laf05_per_hour_unit', 'laf10_per_hour_unit', 'laf25_per_hour_unit', 'laf50_per_hour_unit','laf75_per_hour_unit', 'laf90_per_hour_unit', 'laf95_per_hour_unit', 'laf98_per_hour_unit', 'laf99_per_hour_unit'], axis=1)
+    #df_noise_nan_date = df_noise_nan['result_timestamp']
+    df_noise_nan['date'] = pd.to_datetime(df_noise_nan['date'], format='%d/%m/%Y %H:%M:%S.%f')
+    df_noise_nan['Month'] = df_noise_nan['date'].dt.month
+    print(df_noise_nan['Month'])
+    df_noise_final = create_season(df_noise_nan)
+    df_noise_groupby_season = df_noise_final.groupby('season', as_index=False).mean()
+
+
+    df_drop_nan_date = df_drop_nan['DATEUTC']
+    # Convert 'DATEUTC' column to datetime type
+    #print(df_drop_nan_date)
+    df_drop_nan['DATEUTC'] = pd.to_datetime(df_drop_nan_date, format='%Y-%m-%d %H:%M:%S')
+    #dates = pd.to_datetime(df_drop_nan_date, format='%Y-%m-%d %H:%M:%S')
+    #print(dates)
+    #print(df_drop_nan)
+
+    #df_final_no_season = df_drop_nan.groupby(['DATEUTC'], as_index=False).mean()
+    #df_final = create_season(df_final_no_season)
+    df_final = create_season(df_drop_nan)
+
+    #df_groupby_hour = df_final.groupby(['Year', 'Month', 'Day', 'Hour'], as_index=False).mean()
+    #df_groupby_hour.drop(['Minute'], inplace=True, axis=1)
+
+    #df_groupby_day = df_final.groupby(['Year', 'Month', 'Day'], as_index=False).mean()
+    #df_groupby_day.drop(['Hour', 'Minute'], inplace=True, axis=1)
+
+    df_groupby_season = df_final.groupby('season', as_index=False).mean()
+    df_groupby_season.drop(['Month', 'Day', 'Hour', 'Minute'], inplace=True, axis=1)
+
+    #return df_final, df_groupby_hour, df_groupby_day, df_groupby_season
+    #return df_final, df_groupby_hour, df_groupby_day, df_groupby_season
+    return df_final, df_groupby_season, df_noise_groupby_season
+
+#df_final, df_groupby_hour, df_groupby_day, df_groupby_season = initial_preprocessing_meteor("/home/mariana/Desktop")
+df_final, df_groupby_season, df_noise_groupby_season  = initial_preprocessing_meteor("folder_path")
+#initial_preprocessing_meteor("/home/mariana/Desktop")
+
+
+# Remove rows with invalid date values in the 'DATEUTC' column
+#df_final = df_final[pd.to_datetime(df_final['DATEUTC'], errors='coerce').notnull()]
+
+# Convert the 'DATEUTC' column to datetime type
+#df_final['DATEUTC'] = pd.to_datetime(df_final['DATEUTC'])
+
+# Plotting temperature and humidity
+#df_groupby_season.plot(x='season', y='LC_DWPTEMP')
+#df_noise_groupby_season.plot(x='season', y='laf005_per_hour')
+
+#plt.xlabel('Date')
+#plt.ylabel('Temp (ºC), Noise (dB)')
+
+#plt.title('Temp and Noise Over Time')
+#plt.legend('wind speed')
+
+
+
+fig = plt.figure()
+
+ax1 = fig.add_subplot(111)
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+#ax1.set_title("Online runtimes")
+ax1.set_xlabel('season')
+ax1.set_ylabel('ºC / dB')
+
+ax1.plot(df_groupby_season['season'],df_groupby_season['LC_DWPTEMP'], c='black', marker='o', linestyle='dashed', label=r'temperature')
+ax2.plot(df_groupby_season['season'],df_noise_groupby_season['laf005_per_hour'], c='red', marker='v', linestyle='dashed', label=r'noise')
+
+#leg = ax1.legend()
+
+
+
+plt.show(
