@@ -1,0 +1,102 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import calplot
+import numpy as np
+
+# Replace 'data.json' with the actual filename of your JSON file
+json_file_path = '/Users/leendersmira/Downloads/Leuven-event-data-2022.json'
+
+# Read the JSON file into a DataFrame
+df_events = pd.read_json(json_file_path)
+
+# Access the data
+print(df_events)
+
+
+
+months = {'jan.': '01', 'feb.': '02', 'mrt.': '03', 'apr.': '04',
+           'mei': '05', 'jun.': '06', 'jul.': '07', 'aug.': '08',
+           'sep.': '09', 'okt.': '10', 'nov.': '11', 'dec.': '12'}
+
+df_events['Day'] = df_events['Event.date'].str.split(', ').str[1].str.split(' ').str[0]
+df_events['Month'] = df_events['Event.date'].str.split(' ').str[2].map(months)
+
+df_events.head()
+# dropping events with missing attendance numbers
+df_events = df_events.dropna(subset=['Event.attendance'])
+
+# Split the column by the delimiter " · " into two new columns
+df_events[['Interested', 'Attended']] = df_events['Event.attendance'].str.split(' · ', n=1, expand=True)
+
+# Remove "geïnteresseerd" and "zijn gegaan" from the strings
+df_events['Interested'] = df_events['Interested'].str.replace(' geïnteresseerd', '')
+df_events['Interested'] = df_events['Interested'].str.replace(' zijn geweest', '')
+df_events['Attended'] = df_events['Attended'].str.replace(' zijn gegaan', '')
+
+# Replace the comma (',') with a dot ('.') in the columns
+df_events['Interested'] = df_events['Interested'].str.replace(',', '.')
+df_events['Attended'] = df_events['Attended'].str.replace(',', '.')
+
+#Check which columns contain "d."
+contains_d_interested = df_events['Interested'].str.contains('d\.')
+contains_d_attended = df_events['Attended'].str.contains('d\.').apply(lambda x: False if pd.isna(x) else x)
+
+#Extract numeric values only and convert column to numeric
+df_events['Interested'] = pd.to_numeric(df_events['Interested'].str.findall(r'\d+\.\d+|\d+').apply(lambda x: x[0]))
+df_events['Attended']= pd.to_numeric(df_events['Attended'].str.findall(r'\d+\.\d+|\d+').apply(lambda x: x[0] if isinstance(x, list) else None))
+
+#make day and month column numeric
+df_events['Day'] = pd.to_numeric(df_events['Day'])
+df_events['Month'] = pd.to_numeric(df_events['Month'])
+
+df_events.head()
+
+import pandas as pd
+import plotly.graph_objs as go
+import numpy as np
+import plotly.express as px
+
+
+
+events_hishears = "/Users/leendersmira/Downloads/export_41/csv_results_41_303910_mp-04-his-hears.csv"
+events_vrijthof = "/Users/leendersmira/Downloads/export_41/csv_results_41_280324_mp08bis---vrijthof.csv"
+events_stadspark = "/Users/leendersmira/Downloads/export_41/csv_results_41_255445_mp-08-kiosk-stadspark.csv"
+events_naamsestraat = "/Users/leendersmira/Downloads/export_41/csv_results_41_255444_mp-07-naamsestraat-81.csv"
+events_parkstraat = "/Users/leendersmira/Downloads/export_41/csv_results_41_255443_mp-06-parkstraat-2-la-filosovia.csv"
+events_kapel = "/Users/leendersmira/Downloads/export_41/csv_results_41_255442_mp-05-calvariekapel-ku-leuven.csv"
+events_taste = "/Users/leendersmira/Downloads/export_41/csv_results_41_255441_mp-03-naamsestraat-62-taste.csv"
+events_xior = "/Users/leendersmira/Downloads/export_41/csv_results_41_255440_mp-02-naamsestraat-57-xior.csv"
+events_maxim = "/Users/leendersmira/Downloads/export_41/csv_results_41_255439_mp-01-naamsestraat-35-maxim.csv"
+
+df1 = pd.read_csv(events_hishears,delimiter=';')
+df2 = pd.read_csv(events_vrijthof,delimiter=';')
+df3 = pd.read_csv(events_stadspark,delimiter=';')
+df4 = pd.read_csv(events_naamsestraat,delimiter=';')
+df5 = pd.read_csv(events_parkstraat,delimiter=';')
+df6 = pd.read_csv(events_kapel,delimiter=';')
+df7 = pd.read_csv(events_taste,delimiter=';')
+df8 = pd.read_csv(events_xior,delimiter=';')
+df9 = pd.read_csv(events_maxim,delimiter=';')
+
+df_noise_events = pd.concat([df1, df2, df3, df4, df5, df6, df7, df8, df9])
+
+
+import plotly.express as px
+
+# Reset the index of both dataframes
+df_events = df_events.reset_index(drop=True)
+df_noise_events = df_noise_events.reset_index(drop=True)
+
+# Check the lengths of the dataframes
+num_rows = min(len(df_events), len(df_noise_events))
+
+# Create a new dataframe with the desired columns
+merged_df = pd.DataFrame({
+    'Attended': df_events['Attended'][:num_rows],
+    'Noise Level': df_noise_events['noise_event_laeq_primary_detected_class'][:num_rows],
+    'FB Event Date': df_events['Event.date'][:num_rows],
+    'Noise Event Date': df_noise_events['result_timestamp'][:num_rows]
+})
+
+fig = px.scatter(merged_df, x='Attended', y='Noise Level', hover_data=['FB Event Date', 'Noise Event Date'])
+fig.show()
