@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import pandas as pd
 from app import app
-from utils.descriptive.exp41 import stacked_bar_chart_street, pie_chart_day_night_street
+from utilss.descriptive.exp41 import stacked_bar_chart_street, pie_chart_day_night_street
 
 dropdown_exp41 = dcc.Dropdown(
     id='exp41_data_groups',

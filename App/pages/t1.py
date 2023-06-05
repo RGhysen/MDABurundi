@@ -3,7 +3,7 @@ from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 from app import app
-from utils.descriptive.meteo import lineplot, table_head
+from utilss.descriptive.meteo import lineplot, table_head
 
 
 dropdown_meteor = dcc.Dropdown(

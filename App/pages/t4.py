@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from datetime import date
 from dash.dependencies import Input, Output
 from app import app
-from utils.descriptive.exp42 import filter42, gather_exp42, geoplot
+from utilss.descriptive.exp42 import filter42, gather_exp42, geoplot
 
 
 datepicker1 = dcc.DatePickerSingle(

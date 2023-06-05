@@ -1,8 +1,8 @@
 # Import necessary libraries 
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
-from utils.night_noise import figure_map
-from utils import landing_images
+from utilss.night_noise import figure_map
+from utilss import landing_images
 import pandas as pd
 
 data = {'Dataset': ['Meteorology Data', 'Export 40 Data', 'Export 41 Data', 'Export 42 Data', 'Facebook Data'],

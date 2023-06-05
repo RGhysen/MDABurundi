@@ -1,7 +1,7 @@
 # Import necessary libraries 
 from dash import html, dcc, Output, State, Input
 import dash_bootstrap_components as dbc
-from utils.fb_events import fb_events_table, fb_events_images, fb_events_model, plot_prediction
+from utilss.fb_events import fb_events_table, fb_events_images, fb_events_model, plot_prediction
 from datetime import date
 from app import app
 import plotly.graph_objects as go
@@ -111,11 +111,6 @@ parameters = dbc.Row([dbc.Col(
         predict_button
             ]), width = 6
     )])
-
-from dash import html
-import dash_bootstrap_components as dbc
-from utils.fb_events import fb_events_table
-from utils.fb_events import fb_events_images
 
 # Define the page layout
 layout = dbc.Container([    

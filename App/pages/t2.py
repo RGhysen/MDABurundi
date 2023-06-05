@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
 from app import app
-from utils.descriptive.exp40 import plot_time_series, heatmaps, summary
+from utilss.descriptive.exp40 import plot_time_series, heatmaps, summary
 
 dropdown_exp40 = dcc.Dropdown(
     id='exp40_data_groups',

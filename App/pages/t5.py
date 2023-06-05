@@ -2,8 +2,8 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from app import app
-from utils.descriptive.fb import scatter, heatmap
-from utils.descriptive.map_mira import create_map
+from utilss.descriptive.fb import scatter, heatmap
+from utilss.descriptive.map_mira import create_map
 
 
 fig_heatmap = heatmap.fig
