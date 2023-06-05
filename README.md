@@ -1,6 +1,6 @@
 # MDABurundi
 
-To run the app:
+## To run the app:
 
 Clone the repo.
 
@@ -11,5 +11,6 @@ At the repo (MDABurundi) run VSCode.
 Run 'index.py' inside the App-final folder.
 
 
-The recreate the model used in the app from scratch:
+## The recreate the model used in the app from scratch:
+
 Run the Noise_Levels_Model_building script.
