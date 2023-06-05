@@ -6,7 +6,7 @@ Clone the repo.
 
 Install all the packages (see requirements.txt)
 
-At the repo (MDABurundi) run VSCode. 
+At the "App" folder run VSCode. 
 
 Run 'index.py' inside the App-final folder.
 
